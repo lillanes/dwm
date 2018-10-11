@@ -106,8 +106,10 @@ static Key keys[] = {
 	{ ALTKEY|ControlMask,           XK_Right,     shiftview,   {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_Left,      tagmon,      {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_Right,     tagmon,      {.i = +1 } },
-	{ MODKEY|ControlMask,           XK_Right,     focusmon,    {.i = -1 } },
-	{ MODKEY|ControlMask,           XK_Left,      focusmon,    {.i = +1 } },
+	{ MODKEY,                       XK_Left,      focusstack,  {.i = -1 } },
+	{ MODKEY,                       XK_Right,     focusstack,  {.i = +1 } },
+	{ MODKEY|ControlMask,           XK_Left,      focusmon,    {.i = -1 } },
+	{ MODKEY|ControlMask,           XK_Right,     focusmon,    {.i = +1 } },
 	{ ALTKEY|ControlMask,           XK_BackSpace, spawn,       {.v = logout } },
 	{ ALTKEY|ControlMask,           XK_l,         spawn,       {.v = lockscreen } },
 };

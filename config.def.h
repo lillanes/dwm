@@ -101,7 +101,7 @@ static Key keys[] = {
 	{ ALTKEY,                       XK_F2,        spawn,       {.v = dmenucmd } },
 	{ ALTKEY,                       XK_F3,        spawn,       {.v = termcmd } },
 	{ ALTKEY,                       XK_F4,        killclient,  {0} },
-	{ ALTKEY,                       XK_Tab,       swapfocus,   {0} },
+	{ ALTKEY,                       XK_Tab,       focusprev,   {0} },
 	{ ALTKEY|ControlMask,           XK_Left,      shiftview,   {.i = -1 } },
 	{ ALTKEY|ControlMask,           XK_Right,     shiftview,   {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_Left,      tagmon,      {.i = -1 } },

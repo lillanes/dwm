@@ -207,7 +207,7 @@ static void shiftview(const Arg *arg);
 static void showhide(Client *c);
 static void sigchld(int unused);
 static void spawn(const Arg *arg);
-static void swapfocus();
+static void focusprev();
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void tile(Monitor *);
@@ -1676,14 +1676,9 @@ spawn(const Arg *arg)
 }
 
 void
-swapfocus()
+focusprev()
 {
-	Client *c;
-	for(c = selmon->clients; c && c != prevclient; c = c->next) ;
-	if(c == prevclient) {
-		focus(prevclient);
-		restack(prevclient->mon);
-	}
+  focus(prevclient);
 }
 
 void

@@ -168,7 +168,9 @@ static void expose(XEvent *e);
 static void focus(Client *c);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
+static void focushorizontal(const Arg *arg);
 static void focusstack(const Arg *arg);
+static void focusvertical(const Arg *arg);
 static int getrootptr(int *x, int *y);
 static long getstate(Window w);
 static int gettextprop(Window w, Atom atom, char *text, unsigned int size);
@@ -833,6 +835,62 @@ focusmon(const Arg *arg)
 }
 
 void
+focushorizontal(const Arg *arg)
+{
+	Client *c = NULL;
+	unsigned long i = 0;
+
+	if (!selmon->sel)
+		return;
+
+	/* i is the index of current client */
+	for (c = selmon->clients; c && c != selmon->sel; c = c->next) {
+		if (ISVISIBLE(c)) {
+			++i;
+		}
+	}
+
+	if (arg->i > 0) {
+		if (i < selmon->nmaster) {
+			/* focus top of stack */
+			for (; c && i < selmon->nmaster; c = c->next) {
+				if (ISVISIBLE(c)) {
+					++i;
+				}
+			}
+			if (c) {
+				focus(c);
+				return;
+			}
+		}
+
+		/* focus top of next monitor's master */
+		focusmon(arg);
+		for (c = selmon->clients; c && !ISVISIBLE(c); c = c->next);
+		focus(c);
+	} else {
+		if (i >= selmon->nmaster) {
+			/* focus top of master */
+			for (c = selmon->clients; c && !ISVISIBLE(c); c = c->next);
+			if (c) {
+				focus(c);
+				return;
+			}
+		}
+
+		/* focus top of previous monitor's stack */
+		focusmon(arg);
+		i = 0;
+		for (c = selmon->clients; c && i < selmon->nmaster; c = c->next) {
+			if (ISVISIBLE(c)) {
+				++i;
+			}
+		}
+		focus(c);
+	}
+}
+
+void
 focusstack(const Arg *arg)
 {
 	Client *c = NULL, *i;
@@ -855,6 +913,50 @@ focusstack(const Arg *arg)
 	if (c) {
 		focus(c);
 		restack(selmon);
+	}
+}
+
+void
+focusvertical(const Arg *arg)
+{
+	Client *c = NULL, *mt = NULL, *mb = NULL, *st = NULL, *sb = NULL;
+	unsigned long i = 0;
+
+	if (!selmon->sel)
+		return;
+
+	/* mt is top of master: */
+	for (mt = selmon->clients; mt && !ISVISIBLE(mt); mt = mt->next);
+
+	for (c = mt; c; c = c->next) {
+		if (ISVISIBLE(c)) {
+			++i;
+			if (i == selmon->nmaster) {
+				/* mb is bottom of master, st is top of stack: */
+				mb = c;
+				st = c->next;
+			}
+			/* sb is bottom of stack: */
+			sb = c;
+		}
+	}
+
+	if (arg->i > 0) {
+		if (selmon->sel == mb) {
+			focus(mt);
+		} else if (selmon->sel == sb) {
+			focus(st);
+		} else {
+			focusstack(arg);
+		}
+	} else {
+		if (selmon->sel == mt) {
+			focus(mb);
+		} else if (selmon->sel == st) {
+			focus(sb);
+		} else {
+			focusstack(arg);
+		}
 	}
 }
 

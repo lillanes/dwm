@@ -172,6 +172,7 @@ static void focushorizontal(const Arg *arg);
 static void focusstack(const Arg *arg);
 static void focusvertical(const Arg *arg);
 static int getrootptr(int *x, int *y);
+static int getstackends(const Monitor *m, const Client *fc, Client **mt, Client **mb, Client **st, Client **sb);
 static long getstate(Window w);
 static int gettextprop(Window w, Atom atom, char *text, unsigned int size);
 static void grabbuttons(Client *c, int focused);
@@ -837,56 +838,41 @@ focusmon(const Arg *arg)
 void
 focushorizontal(const Arg *arg)
 {
-	Client *c = NULL;
-	unsigned long i = 0;
+	Client *c, *mt = NULL, *st = NULL, *mb = NULL, *sb = NULL;
+	Monitor *m;
+	int inmaster;
 
 	if (!selmon->sel)
 		return;
 
-	/* i is the index of current client */
-	for (c = selmon->clients; c && c != selmon->sel; c = c->next) {
-		if (ISVISIBLE(c)) {
-			++i;
-		}
-	}
+	inmaster = getstackends(selmon, selmon->sel, &mt, &mb, &st, &sb);
 
 	if (arg->i > 0) {
-		if (i < selmon->nmaster) {
-			/* focus top of stack */
-			for (; c && i < selmon->nmaster; c = c->next) {
-				if (ISVISIBLE(c)) {
-					++i;
-				}
-			}
-			if (c) {
-				focus(c);
-				return;
-			}
+		if (inmaster && st) {
+			focus(st);
+			return;
 		}
 
 		/* focus top of next monitor's master */
-		focusmon(arg);
-		for (c = selmon->clients; c && !ISVISIBLE(c); c = c->next);
-		focus(c);
+		if ((m = dirtomon(1)) == selmon)
+			return;
+		for (c = m->clients; c && !ISVISIBLE(c); c = c->next);
+		if (c)
+			focus(c);
 	} else {
-		if (i >= selmon->nmaster) {
-			/* focus top of master */
-			for (c = selmon->clients; c && !ISVISIBLE(c); c = c->next);
-			if (c) {
-				focus(c);
-				return;
-			}
+		if (!inmaster && mt) {
+			focus(mt);
+			return;
 		}
 
 		/* focus top of previous monitor's stack */
-		focusmon(arg);
-		i = 0;
-		for (c = selmon->clients; c && i < selmon->nmaster; c = c->next) {
-			if (ISVISIBLE(c)) {
-				++i;
-			}
-		}
-		focus(c);
+		if ((m = dirtomon(-1)) == selmon)
+			return;
+		getstackends(m, NULL, &mt, &mb, &st, &sb);
+		if (st)
+			focus(st);
+		else if (mt)
+			focus(mt);
 	}
 }
 
@@ -919,45 +905,32 @@ focusstack(const Arg *arg)
 void
 focusvertical(const Arg *arg)
 {
-	Client *c = NULL, *mt = NULL, *mb = NULL, *st = NULL, *sb = NULL;
-	unsigned long i = 0;
+	Client *c = NULL, *i = NULL, *mt = NULL, *mb = NULL, *st = NULL, *sb = NULL;
 
 	if (!selmon->sel)
 		return;
 
-	/* mt is top of master: */
-	for (mt = selmon->clients; mt && !ISVISIBLE(mt); mt = mt->next);
-
-	for (c = mt; c; c = c->next) {
-		if (ISVISIBLE(c)) {
-			++i;
-			if (i == selmon->nmaster) {
-				/* mb is bottom of master, st is top of stack: */
-				mb = c;
-				st = c->next;
-			}
-			/* sb is bottom of stack: */
-			sb = c;
-		}
-	}
+	getstackends(selmon, NULL, &mt, &mb, &st, &sb);
 
 	if (arg->i > 0) {
-		if (selmon->sel == mb) {
-			focus(mt);
-		} else if (selmon->sel == sb) {
-			focus(st);
-		} else {
-			focusstack(arg);
-		}
+		if (selmon->sel == mb)
+			c = mt;
+		else if (selmon->sel == sb)
+			c = st;
+		else
+			for (c = selmon->sel->next; c && !ISVISIBLE(c); c = c->next);
 	} else {
-		if (selmon->sel == mt) {
-			focus(mb);
-		} else if (selmon->sel == st) {
-			focus(sb);
-		} else {
-			focusstack(arg);
+		if (selmon->sel == mt)
+			c = mb;
+		else if (selmon->sel == st)
+			c = sb;
+		else {
+			for (i = mt; i != selmon->sel; i = i->next)
+				if (ISVISIBLE(i))
+					c = i;
 		}
 	}
+	focus(c);
 }
 
 Atom
@@ -984,6 +957,33 @@ getrootptr(int *x, int *y)
 	Window dummy;
 
 	return XQueryPointer(dpy, root, &dummy, &dummy, x, y, &di, &di, &dui);
+}
+
+int
+getstackends(const Monitor *m, const Client *fc, Client **mt, Client **mb, Client **st, Client **sb)
+{
+	Client *c;
+	unsigned long i = 0;
+	int inmaster = 0;
+	*mt = NULL, *mb = NULL, *st = NULL, *sb = NULL;
+
+	for (c = m->clients; c; c = c->next){
+		if (!ISVISIBLE(c))
+			continue;
+		if (i == 0)
+			*mt = c;
+		if (i < m->nmaster)
+			*mb = c;
+		if (i == m->nmaster)
+			*st = c;
+		if (i >= m->nmaster)
+			*sb = c;
+		if (fc == c && i < m->nmaster) {
+			inmaster = 1;
+		}
+		++i;
+	}
+	return inmaster;
 }
 
 long

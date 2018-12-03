@@ -21,6 +21,7 @@
  * To understand everything else, start reading main().
  */
 #include <errno.h>
+#include <limits.h>
 #include <locale.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <wordexp.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <X11/cursorfont.h>
@@ -200,6 +202,7 @@ static void scan(void);
 static int sendevent(Client *c, Atom proto);
 static void sendmon(Client *c, Monitor *m);
 static void setclientstate(Client *c, long state);
+static void expanddmenuhist(void);
 static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
 static void setlayout(const Arg *arg);
@@ -774,6 +777,18 @@ enternotify(XEvent *e)
 	} else if (!c || c == selmon->sel)
 		return;
 	focus(c);
+}
+
+void
+expanddmenuhist(void)
+{
+	wordexp_t expanded = {0};
+	if (!wordexp(dmenuhist, &expanded, 0) && expanded.we_wordc == 1)
+		strcpy(dmenuhist, expanded.we_wordv[0]);
+	else
+		fprintf(stderr, "dwm: could not expand dmenuhist (%s)\n",
+				dmenuhist);
+	wordfree(&expanded);
 }
 
 void
@@ -1699,6 +1714,8 @@ setup(void)
 	XSelectInput(dpy, root, wa.event_mask);
 	grabkeys();
 	focus(NULL);
+	/* setup history file path for dmenu */
+	expanddmenuhist();
 }
 
 

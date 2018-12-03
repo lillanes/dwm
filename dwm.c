@@ -202,7 +202,7 @@ static void scan(void);
 static int sendevent(Client *c, Atom proto);
 static void sendmon(Client *c, Monitor *m);
 static void setclientstate(Client *c, long state);
-static void expanddmenuhist(void);
+static void expandenvvars(char *word);
 static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
 static void setlayout(const Arg *arg);
@@ -780,14 +780,14 @@ enternotify(XEvent *e)
 }
 
 void
-expanddmenuhist(void)
+expandenvvars(char *word)
 {
 	wordexp_t expanded = {0};
-	if (!wordexp(dmenuhist, &expanded, 0) && expanded.we_wordc == 1)
-		strcpy(dmenuhist, expanded.we_wordv[0]);
+	if (!wordexp(word, &expanded, 0) && expanded.we_wordc == 1)
+		strcpy(word, expanded.we_wordv[0]);
 	else
-		fprintf(stderr, "dwm: could not expand dmenuhist (%s)\n",
-				dmenuhist);
+		fprintf(stderr, "dwm: could not expand environment variables (%s)\n",
+				word);
 	wordfree(&expanded);
 }
 
@@ -1715,7 +1715,9 @@ setup(void)
 	grabkeys();
 	focus(NULL);
 	/* setup history file path for dmenu */
-	expanddmenuhist();
+	expandenvvars(dmenuhist);
+	/* store PGRP for logout */
+	sprintf(pgrp, "-%d", getpgrp());
 }
 
 

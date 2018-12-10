@@ -1,0 +1,15 @@
+#! /bin/sh
+
+cd $HOME
+
+slstatus &
+light-locker &
+
+xsetroot -solid "dim grey"
+
+XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+mkdir -p "$XDG_CACHE_HOME/dwm"
+
+while true; do
+    dwm 2> "$XDG_CACHE_HOME/dwm/log"
+done

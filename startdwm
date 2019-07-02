@@ -2,10 +2,8 @@
 
 cd $HOME
 
-slstatus &
-light-locker &
-
-xsetroot -solid "dim grey"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+[ -f "$XDG_CONFIG_HOME/dwm/startup" ] && . $XDG_CONFIG_HOME/dwm/startup
 
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 mkdir -p "$XDG_CACHE_HOME/dwm"

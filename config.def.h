@@ -1,5 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <X11/XF86keysym.h>
+
 /* appearance */
 static const unsigned int borderpx  = 2;        /* border pixel of windows */
 static const unsigned int gappx     = 3;        /* gap pixel between windows */
@@ -66,6 +68,13 @@ static const char *logout[]   = { "kill", "-TERM", pgrp, NULL };
 static char dwmlock[PATH_MAX + 1] = "\"${XDG_CONFIG_HOME:-$HOME/.config}/dwm/dwmlock\""; /* to be expanded in setup() */
 static const char *lockscreen[]   = { dwmlock, NULL };
 
+/* for special keyboard keys */
+static const char *mute[] = { "amixer", "-q", "sset", "Master", "toggle", NULL };
+static const char *volumedown[] = { "amixer", "-q", "sset", "Master", "1-", NULL };
+static const char *volumeup[] = { "amixer", "-q", "sset", "Master", "1+", NULL };
+static const char *brightnessdown[] = { "xbacklight", "-dec", "10", NULL };
+static const char *brightnessup[] = { "xbacklight", "-inc", "10", NULL };
+
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
@@ -118,9 +127,14 @@ static Key keys[] = {
 	{ MODKEY|ControlMask,           XK_Right,     focusmon,        {.i = +1 } },
 	{ ALTKEY|ControlMask,           XK_BackSpace, spawn,           {.v = logout } },
 	{ ALTKEY|ControlMask,           XK_l,         spawn,           {.v = lockscreen } },
+
+	{ 0,				XF86XK_AudioMute,	spawn,	{.v = mute } },
+	{ 0,				XF86XK_AudioLowerVolume,	spawn,	{.v = volumedown } },
+	{ 0,				XF86XK_AudioRaiseVolume,	spawn,	{.v = volumeup } },
+	{ 0,				XF86XK_MonBrightnessDown,	spawn,	{.v = brightnessdown } },
+	{ 0,				XF86XK_MonBrightnessUp,		spawn,	{.v = brightnessup } },
 };
 
-/* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
 	/* click                event mask      button          function        argument */

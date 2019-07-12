@@ -63,7 +63,8 @@ static const char *termcmd[]  = { "st", NULL };
 #define MAX_PID_CHARS ( ( CHAR_BIT * sizeof(pid_t) / 3 ) + 2 )
 static char pgrp[MAX_PID_CHARS + 1] = ""; /* to be filled in in setup() */
 static const char *logout[]   = { "kill", "-TERM", pgrp, NULL };
-static const char *lockscreen[]   = { "light-locker-command", "--lock", NULL };
+static char dwmlock[PATH_MAX + 1] = "\"${XDG_CONFIG_HOME:-$HOME/.config}/dwm/dwmlock\""; /* to be expanded in setup() */
+static const char *lockscreen[]   = { dwmlock, NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */

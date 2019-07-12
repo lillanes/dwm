@@ -1716,6 +1716,8 @@ setup(void)
 	focus(NULL);
 	/* setup history file path for dmenu */
 	expandenvvars(dmenuhist);
+	/* setup screenlock script */
+	expandenvvars(dwmlock);
 	/* store PGRP for logout */
 	sprintf(pgrp, "-%d", getpgrp());
 }

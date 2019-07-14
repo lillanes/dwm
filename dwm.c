@@ -1718,8 +1718,6 @@ setup(void)
 	expandenvvars(dmenuhist);
 	/* setup screenlock script */
 	expandenvvars(dwmlock);
-	/* store PGRP for logout */
-	sprintf(pgrp, "-%d", getpgrp());
 }
 
 

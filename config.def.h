@@ -62,8 +62,6 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static char dmenuhist[PATH_MAX + 1] = "\"${XDG_CACHE_HOME:-$HOME/.cache}/dwm/dmenuhist\""; /* to be expanded in setup() */
 static const char *dmenucmd[] = { "dmenu_run", "-H", dmenuhist, "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "st", NULL };
-#define MAX_PID_CHARS ( ( CHAR_BIT * sizeof(pid_t) / 3 ) + 2 )
-static char pgrp[MAX_PID_CHARS + 1] = ""; /* to be filled in in setup() */
 static const char *logout[]   = { "kill", "-TERM", pgrp, NULL };
 static char dwmlock[PATH_MAX + 1] = "\"${XDG_CONFIG_HOME:-$HOME/.config}/dwm/dwmlock\""; /* to be expanded in setup() */
 static const char *lockscreen[]   = { dwmlock, NULL };

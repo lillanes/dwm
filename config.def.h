@@ -65,6 +65,8 @@ static const char *termcmd[]  = { "st", NULL };
 static const char *logout[]   = { "kill", "-TERM", pgrp, NULL };
 static char dwmlock[PATH_MAX + 1] = "\"${XDG_CONFIG_HOME:-$HOME/.config}/dwm/dwmlock\""; /* to be expanded in setup() */
 static const char *lockscreen[]   = { dwmlock, NULL };
+static const char scratchpadname[] = "scratch";
+static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
 
 /* for special keyboard keys */
 static const char *mute[] = { "amixer", "-q", "sset", "Master", "toggle", NULL };
@@ -111,6 +113,7 @@ static Key keys[] = {
 
 	{ ALTKEY,                       XK_F2,        spawn,           {.v = dmenucmd } },
 	{ ALTKEY,                       XK_F3,        spawn,           {.v = termcmd } },
+	{ MODKEY,                       XK_grave,     togglescratch,   {.v = scratchpadcmd } },
 	{ ALTKEY,                       XK_F4,        killclient,      {0} },
 	{ ALTKEY,                       XK_Tab,       focusprev,       {0} },
 	{ ALTKEY|ControlMask,           XK_Left,      shiftview,       {.i = -1 } },

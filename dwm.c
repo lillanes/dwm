@@ -1729,6 +1729,8 @@ setup(void)
 	expandenvvars(dmenuhist);
 	/* setup screenlock script */
 	expandenvvars(dwmlock);
+	/* setup logout script */
+	expandenvvars(dmenulogout);
 }
 
 

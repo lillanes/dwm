@@ -8,6 +8,7 @@ XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 mkdir -p "$XDG_CACHE_HOME/dwm"
 
-while true; do
-    dwm 2> "$XDG_CACHE_HOME/dwm/log"
-done
+logfile="$XDG_CACHE_HOME/dwm/log"
+
+[ -f "$logfile" ] && cp "$logfile" "$logfile.old"
+exec dwm 2> "$logfile"

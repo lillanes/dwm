@@ -138,6 +138,7 @@ typedef struct {
 	const char *class;
 	const char *instance;
 	const char *title;
+	int force;
 	unsigned int tags;
 	int iscentered;
 	int isfloating;
@@ -145,7 +146,7 @@ typedef struct {
 } Rule;
 
 /* function declarations */
-static void applyrules(Client *c);
+static void applyrules(Client *c, int soft);
 static int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
 static void arrange(Monitor *m);
 static void arrangemon(Monitor *m);
@@ -292,7 +293,7 @@ struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
 
 /* function implementations */
 void
-applyrules(Client *c)
+applyrules(Client *c, int soft)
 {
 	const char *class, *instance;
 	unsigned int i;
@@ -309,6 +310,8 @@ applyrules(Client *c)
 
 	for (i = 0; i < LENGTH(rules); i++) {
 		r = &rules[i];
+		if (soft && !r->force)
+			continue;
 		if ((!r->title || strstr(c->name, r->title))
 		&& (!r->class || strstr(class, r->class))
 		&& (!r->instance || strstr(instance, r->instance)))
@@ -1162,9 +1165,10 @@ manage(Window w, XWindowAttributes *wa)
 	if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
 		c->mon = t->mon;
 		c->tags = t->tags;
+		applyrules(c, 1);
 	} else {
 		c->mon = selmon;
-		applyrules(c);
+		applyrules(c, 0);
 	}
 
 	if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)

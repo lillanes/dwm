@@ -71,6 +71,8 @@ static char dwmlock[PATH_MAX + 1] = "\"${XDG_CONFIG_HOME:-$HOME/.config}/dwm/dwm
 static const char *lockscreen[]   = { dwmlock, NULL };
 static const char scratchpadname[] = "scratch";
 static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
+static const char infoname[] = "htop-float";
+static const char *infocmd[] = { "st", "-t", infoname, "-g", "120x34", "htop", NULL };
 
 /* for special keyboard keys */
 static const char *mute[] = { "amixer", "-q", "sset", "Master", "toggle", NULL };
@@ -148,7 +150,9 @@ static Button buttons[] = {
 	{ ClkLtSymbol,          0,              Button2,        setlayout,      {.v = &layouts[1]} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
+	{ ClkStatusText,        0,              Button1,        spawn,          {.v = infocmd } },
+	{ ClkStatusText,        0,              Button4,        spawn,          {.v = volumeup } },
+	{ ClkStatusText,        0,              Button5,        spawn,          {.v = volumedown } },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },

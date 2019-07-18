@@ -1192,6 +1192,11 @@ manage(Window w, XWindowAttributes *wa)
 		c->iscentered = True;
 	}
 
+	if (!strcmp(c->name, infoname)) {
+		c->isfloating = True;
+		c->iscentered = True;
+	}
+
 	if(c->iscentered) {
 		c->x = c->mon->mx + (c->mon->mw / 2 - WIDTH(c) / 2); /* center in x direction */
 		c->y = c->mon->my + (c->mon->mh / 2 - HEIGHT(c) / 2); /* center in y direction */

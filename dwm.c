@@ -1919,17 +1919,33 @@ togglefloating(const Arg *arg)
 void
 togglescratch(const Arg *arg)
 {
+	Monitor *m;
 	Client *c;
 	unsigned int found = 0;
 
-	for (c = selmon->clients; c && !(found = c->tags & scratchtag); c = c->next);
+	for (m = mons; m; m = m->next) {
+		for (c = m->clients; c && !(found = c->tags & scratchtag); c = c->next);
+		if (found)
+			break;
+	}
 	if (found) {
-		unsigned int newtagset = selmon->tagset[selmon->seltags] ^ scratchtag;
+		unsigned int newtagset = m->tagset[m->seltags] ^ scratchtag;
 		if (newtagset) {
-			selmon->tagset[selmon->seltags] = newtagset;
+			m->tagset[m->seltags] = newtagset;
 			focus(NULL);
+			arrange(m);
+		}
+
+		if (m != selmon) {
+			detach(c);
+			detachstack(c);
+			c->mon = selmon;
+			attach(c);
+			attachstack(c);
+			selmon->tagset[selmon->seltags] |= scratchtag;
 			arrange(selmon);
 		}
+
 		if (ISVISIBLE(c)) {
 			focus(c);
 			restack(selmon);

@@ -1558,12 +1558,15 @@ sendmon(Client *c, Monitor *m)
 	if (c->mon == m)
 		return;
 	unfocus(c, 1);
+	c->mon->tagset[c->mon->seltags] &= ~scratchtag; /* remove scratchtag from source monitor */
 	detach(c);
 	detachstack(c);
 	c->mon = m;
-	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
 	attach(c);
 	attachstack(c);
+	m->tagset[m->seltags] |= c->tags & scratchtag; /* add scratchtag to target if needed */
+	if (!(c->tags & scratchtag))
+		c->tags = m->tagset[m->seltags] & ~scratchtag; /* assign tags of target monitor (but not scratchtag!)*/
 	focus(NULL);
 	arrange(NULL);
 }
@@ -1959,7 +1962,7 @@ toggletag(const Arg *arg)
 {
 	unsigned int newtags;
 
-	if (!selmon->sel)
+	if (!selmon->sel || selmon->sel->tags == scratchtag)
 		return;
 	newtags = selmon->sel->tags ^ (arg->ui & TAGMASK);
 	if (newtags) {

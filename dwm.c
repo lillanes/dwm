@@ -350,6 +350,10 @@ applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact)
 		if (*y + *h + 2 * c->bw < 0)
 			*y = 0;
 	} else {
+		if (c->iscentered) {
+			*x = m->mx + (m->mw / 2 - WIDTH(c) / 2); /* center in x direction */
+			*y = m->my + (m->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
+		}
 		if (*x >= m->wx + m->ww)
 			*x = m->wx + m->ww - WIDTH(c);
 		if (*y >= m->wy + m->wh)

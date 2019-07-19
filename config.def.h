@@ -75,9 +75,9 @@ static const char infoname[] = "htop-float";
 static const char *infocmd[] = { "st", "-t", infoname, "-g", "120x34", "htop", NULL };
 
 /* for special keyboard keys */
-static const char *mute[] = { "amixer", "-q", "sset", "Master", "toggle", NULL };
-static const char *volumedown[] = { "amixer", "-q", "sset", "Master", "1-", NULL };
-static const char *volumeup[] = { "amixer", "-q", "sset", "Master", "1+", NULL };
+static const char *mute[] = { "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL };
+static const char *volumedown[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%", NULL };
+static const char *volumeup[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%", NULL };
 static const char *brightnessdown[] = { "xbacklight", "-dec", "10", NULL };
 static const char *brightnessup[] = { "xbacklight", "-inc", "10", NULL };
 

@@ -872,8 +872,10 @@ focushorizontal(const Arg *arg)
 	Monitor *m;
 	int inmaster;
 
-	if (!selmon->sel)
+	if (!selmon->sel) {
+		focusmon(arg);
 		return;
+	}
 
 	inmaster = getstackends(selmon, selmon->sel, &mt, &mb, &st, &sb);
 

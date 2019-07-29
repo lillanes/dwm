@@ -1,7 +1,10 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <X11/XF86keysym.h>
+
 /* appearance */
-static const unsigned int borderpx  = 1;        /* border pixel of windows */
+static const unsigned int borderpx  = 2;        /* border pixel of windows */
+static const unsigned int gappx     = 3;        /* gap pixel between windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
@@ -26,15 +29,17 @@ static const Rule rules[] = {
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class      instance    title       tags mask     isfloating   monitor */
-	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
-	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+	/* class      instance    title       force    tags mask     iscentered     isfloating   monitor */
+	{ "Gimp",     NULL,       NULL,       0,       0,            0,             1,           -1 },
+	{ NULL,       NULL,       "ranger",   0,       0,            1,             1,           -1 },
+	{ "Firefox",  "firefox",  NULL,       1,       0,            1,             1,           -1 },
+	{ "Firefox",  "Dialog",   NULL,       1,       0,            1,             1,           -1 },
 };
 
 /* layout(s) */
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
-static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
+static const int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
@@ -44,7 +49,8 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask
+#define ALTKEY Mod1Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -56,8 +62,24 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+static char dmenuhist[PATH_MAX + 1] = "\"${XDG_CACHE_HOME:-$HOME/.cache}/dwm/dmenuhist\""; /* to be expanded in setup() */
+static char dmenulogout[PATH_MAX + 1] = "${XDG_CONFIG_HOME:-$HOME/.config}/dwm/dmenu_logout"; /* to be expanded in setup() */
+static const char *dmenucmd[] = { "dmenu_run", "-H", dmenuhist, "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "st", NULL };
+static const char *logout[] = { dmenulogout, "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+static char dwmlock[PATH_MAX + 1] = "\"${XDG_CONFIG_HOME:-$HOME/.config}/dwm/dwmlock\""; /* to be expanded in setup() */
+static const char *lockscreen[]   = { dwmlock, NULL };
+static const char scratchpadname[] = "scratch";
+static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
+static const char infoname[] = "htop-float";
+static const char *infocmd[] = { "st", "-t", infoname, "-g", "120x34", "htop", NULL };
+
+/* for special keyboard keys */
+static const char *mute[] = { "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL };
+static const char *volumedown[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%", NULL };
+static const char *volumeup[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%", NULL };
+static const char *brightnessdown[] = { "xbacklight", "-dec", "10", NULL };
+static const char *brightnessup[] = { "xbacklight", "-inc", "10", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
@@ -93,17 +115,45 @@ static Key keys[] = {
 	TAGKEYS(                        XK_7,                      6)
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
-	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+	{ MODKEY|ShiftMask,             XK_q,      quit,           {1} },
+	{ MODKEY|ControlMask|ShiftMask, XK_q,      quit,           {0} },
+
+	{ ALTKEY,                       XK_F2,        spawn,           {.v = dmenucmd } },
+	{ ALTKEY,                       XK_F3,        spawn,           {.v = termcmd } },
+	{ MODKEY,                       XK_grave,     togglescratch,   {.v = scratchpadcmd } },
+	{ ALTKEY,                       XK_F4,        killclient,      {0} },
+	{ ALTKEY,                       XK_Tab,       focusprev,       {0} },
+	{ ALTKEY|ControlMask,           XK_Left,      shiftview,       {.i = -1 } },
+	{ ALTKEY|ControlMask,           XK_Right,     shiftview,       {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_Left,      tagmon,          {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_Right,     tagmon,          {.i = +1 } },
+	{ MODKEY,                       XK_Left,      focushorizontal, {.i = -1 } },
+	{ MODKEY,                       XK_Right,     focushorizontal, {.i = +1 } },
+	{ MODKEY,                       XK_Up,        focusvertical,   {.i = -1 } },
+	{ MODKEY,                       XK_Down,      focusvertical,   {.i = +1 } },
+	{ MODKEY|ControlMask,           XK_Left,      focusmon,        {.i = -1 } },
+	{ MODKEY|ControlMask,           XK_Right,     focusmon,        {.i = +1 } },
+	{ ALTKEY|ControlMask,           XK_BackSpace, spawn,           {.v = logout } },
+	{ ALTKEY|ControlMask,           XK_l,         spawn,           {.v = lockscreen } },
+
+	{ 0,				XF86XK_AudioMute,	spawn,	{.v = mute } },
+	{ 0,				XF86XK_AudioLowerVolume,	spawn,	{.v = volumedown } },
+	{ 0,				XF86XK_AudioRaiseVolume,	spawn,	{.v = volumeup } },
+	{ 0,				XF86XK_MonBrightnessDown,	spawn,	{.v = brightnessdown } },
+	{ 0,				XF86XK_MonBrightnessUp,		spawn,	{.v = brightnessup } },
 };
 
-/* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
 	/* click                event mask      button          function        argument */
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
+	{ ClkLtSymbol,          0,              Button2,        setlayout,      {.v = &layouts[1]} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
+	{ ClkStatusText,        0,              Button1,        spawn,          {.v = mute } },
+	{ ClkStatusText,        0,              Button4,        spawn,          {.v = volumeup } },
+	{ ClkStatusText,        0,              Button5,        spawn,          {.v = volumedown } },
+	{ ClkStatusText,        0,              Button3,        spawn,          {.v = infocmd } },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },

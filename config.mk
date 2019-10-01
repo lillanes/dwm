@@ -1,5 +1,8 @@
+# git branch
+BRANCH = ${shell git rev-parse --abbrev-ref HEAD}
+
 # dwm version
-VERSION = 6.2.lillanes
+VERSION = 6.2.${BRANCH}
 
 # Customize below to fit your system
 

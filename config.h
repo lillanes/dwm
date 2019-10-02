@@ -121,6 +121,8 @@ static Key keys[] = {
 	{ ALTKEY,                       XK_Tab,       focusprev,       {0} },
 	{ MODKEY|ShiftMask,             XK_h,         tagmon,          {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_l,         tagmon,          {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_j,         focusstack,      {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_k,         focusstack,      {.i = -1 } },
 	{ MODKEY,                       XK_h,         focushorizontal, {.i = -1 } },
 	{ MODKEY,                       XK_j,         focusvertical,   {.i = +1 } },
 	{ MODKEY,                       XK_k,         focusvertical,   {.i = -1 } },

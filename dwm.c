@@ -868,7 +868,7 @@ focusmon(const Arg *arg)
 void
 focushorizontal(const Arg *arg)
 {
-	Client *c, *mt = NULL, *st = NULL, *mb = NULL, *sb = NULL;
+	Client *c = NULL, *mt = NULL, *st = NULL, *mb = NULL, *sb = NULL;
 	Monitor *m;
 	int inmaster;
 
@@ -885,26 +885,37 @@ focushorizontal(const Arg *arg)
 			return;
 		}
 
-		/* focus top of next monitor's master */
-		if ((m = dirtomon(1)) == selmon)
-			return;
-		for (c = m->clients; c && !ISVISIBLE(c); c = c->next);
-		if (c)
-			focus(c);
+		/* focus top of next non-empty monitor's master */
+		for (m = selmon->next; m != selmon; m = m->next) {
+			if (!m)
+				m = mons;
+			for (c = m->clients; c && !ISVISIBLE(c); c = c->next);
+			if (c) {
+				focus(c);
+				return;
+			}
+		}
 	} else {
 		if (!inmaster && mt) {
 			focus(mt);
 			return;
 		}
 
-		/* focus top of previous monitor's stack */
-		if ((m = dirtomon(-1)) == selmon)
-			return;
-		getstackends(m, NULL, &mt, &mb, &st, &sb);
-		if (st)
-			focus(st);
-		else if (mt)
-			focus(mt);
+		/* focus top of previous non-empty monitor's stack */
+		for (m = selmon->next; m != selmon; m = m->next) {
+			if (!m) {
+				if (mons == selmon)
+					break;
+				m = mons;
+			}
+			getstackends(m, NULL, &mt, &mb, &st, &sb);
+			if (st)
+				c = st;
+			else if (mt)
+				c = mt;
+		}
+		if (c)
+			focus(c);
 	}
 }
 

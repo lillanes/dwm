@@ -1010,7 +1010,7 @@ getstackends(const Monitor *m, const Client *fc, Client **mt, Client **mb, Clien
 	int inmaster = 0;
 	*mt = NULL, *mb = NULL, *st = NULL, *sb = NULL;
 
-	for (c = m->clients; c; c = c->next){
+	for (c = m->clients; c; c = c->next) {
 		if (!ISVISIBLE(c))
 			continue;
 		if (i == 0)

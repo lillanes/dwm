@@ -1578,7 +1578,6 @@ sendmon(Client *c, Monitor *m)
 {
 	if (c->mon == m)
 		return;
-	unfocus(c, 1);
 	c->mon->tagset[c->mon->seltags] &= ~scratchtag; /* remove scratchtag from source monitor */
 	detach(c);
 	detachstack(c);
@@ -1588,8 +1587,10 @@ sendmon(Client *c, Monitor *m)
 	m->tagset[m->seltags] |= c->tags & scratchtag; /* add scratchtag to target if needed */
 	if (!(c->tags & scratchtag))
 		c->tags = m->tagset[m->seltags] & ~scratchtag; /* assign tags of target monitor (but not scratchtag!)*/
-	focus(NULL);
-	arrange(NULL);
+	arrange(selmon);
+	selmon = m;
+	selmon->sel = c;
+	arrange(selmon);
 }
 
 void

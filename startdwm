@@ -13,4 +13,5 @@ logfile="$XDG_CACHE_HOME/dwm/log"
 [ -f "$logfile" ] && cp "$logfile" "$logfile.old"
 
 command -v slstatus && slstatus 2> /dev/null &
+command -v dunst && dunst &
 exec dwm 2> "$logfile"

@@ -1636,6 +1636,7 @@ setfocus(Client *c)
 		XChangeProperty(dpy, root, netatom[NetActiveWindow],
 			XA_WINDOW, 32, PropModeReplace,
 			(unsigned char *) &(c->win), 1);
+		XRaiseWindow(dpy, c->win);
 	}
 	sendevent(c, wmatom[WMTakeFocus]);
 }

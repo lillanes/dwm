@@ -194,6 +194,7 @@ static Client *nexttiled(Client *c);
 static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
+static void raiseclient(const Arg *arg);
 static Monitor *recttomon(int x, int y, int w, int h);
 static void resize(Client *c, int x, int y, int w, int h, int interact);
 static void resizeclient(Client *c, int x, int y, int w, int h);
@@ -1420,6 +1421,14 @@ quit(const Arg *arg)
 	running = 0;
 }
 
+void
+raiseclient(const Arg *arg)
+{
+	if (!selmon->sel)
+		return;
+	XRaiseWindow(dpy, selmon->sel->win);
+}
+
 Monitor *
 recttomon(int x, int y, int w, int h)
 {
@@ -1638,7 +1647,6 @@ setfocus(Client *c)
 		XChangeProperty(dpy, root, netatom[NetActiveWindow],
 			XA_WINDOW, 32, PropModeReplace,
 			(unsigned char *) &(c->win), 1);
-		XRaiseWindow(dpy, c->win);
 	}
 	sendevent(c, wmatom[WMTakeFocus]);
 }

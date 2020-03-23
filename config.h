@@ -134,6 +134,7 @@ static Key keys[] = {
 	{ ALTKEY|ShiftMask,             XK_h,         setmfact,         {.f = -0.05} },
 	{ ALTKEY|ShiftMask,             XK_l,         setmfact,         {.f = +0.05} },
 	{ MODKEY|ShiftMask,             XK_f,         togglefullscreen, {0} },
+	{ MODKEY,                       XK_z,         raiseclient,      {0} },
 
 	{ MODKEY,                       XK_Delete,     spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_apostrophe, spawn,          {.v = termcmd } },

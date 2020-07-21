@@ -154,7 +154,7 @@ static Button buttons[] = {
 	{ ClkLtSymbol,          0,              Button2,        setlayout,      {.v = &layouts[1]} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	{ ClkStatusText,        0,              Button1,        spawn,          {.v = mute } },
+	{ ClkStatusText,        0,              Button2,        spawn,          {.v = mute } },
 	{ ClkStatusText,        0,              Button4,        spawn,          {.v = volumeup } },
 	{ ClkStatusText,        0,              Button5,        spawn,          {.v = volumedown } },
 	{ ClkStatusText,        0,              Button3,        spawn,          {.v = infocmd } },

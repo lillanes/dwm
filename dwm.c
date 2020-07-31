@@ -61,7 +61,7 @@
 
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
-enum { SchemeNorm, SchemeSel }; /* color schemes */
+enum { SchemeNorm, SchemeSel, SchemeAlert }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
@@ -725,13 +725,31 @@ drawbar(Monitor *m)
 	int boxw = drw->fonts->h / 6 + 2;
 	unsigned int i, n = 0, occ = 0, urg = 0;
 	char ltsymbol[16];
+	char *tr = stext;
+	char *tl = stext;
+	char ctmp;
 	Client *c;
 
 	/* draw status first so it can be overdrawn by tags later */
 	if (m == selmon || 1) { /* status is only drawn on selected monitor */
+		tr = stext + strlen(stext);
+		ctmp = *tr;
+		for (tl = stext + strlen(stext) - 1; tl != stext; --tl) {
+			if ((unsigned int)*tl > LENGTH(colors)) { continue; }
+			drw_setscheme(drw, scheme[(unsigned int)(*tl - 1)]);
+			w = TEXTW(tl + 1) - lrpad + 2;
+			sw += w;
+			drw_text(drw, m->ww - sw, 0, w, bh, 0, tl + 1, 0);
+			*tr = ctmp;
+			ctmp = *tl;
+			*tl = '\0';
+			tr = tl;
+		}
 		drw_setscheme(drw, scheme[SchemeNorm]);
-		sw = TEXTW(stext) - lrpad + 2; /* 2px right padding */
-		drw_text(drw, m->ww - sw, 0, sw, bh, 0, stext, 0);
+		w = TEXTW(stext) - lrpad + 2;
+		sw += w;
+		drw_text(drw, m->ww - sw, 0, w, bh, 0, stext, 0);
+		*tr = ctmp;
 	}
 
 	for (c = m->clients; c; c = c->next) {

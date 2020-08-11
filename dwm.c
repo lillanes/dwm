@@ -1803,6 +1803,8 @@ setup(void)
 	expandenvvars(dwmlock);
 	/* setup logout script */
 	expandenvvars(dmenulogout);
+	/* setup screenshot file path */
+	expandenvvars(scrotfile);
 }
 
 

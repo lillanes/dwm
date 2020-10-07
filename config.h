@@ -141,6 +141,7 @@ static Key keys[] = {
 	{ ALTKEY|ControlMask,           XK_l,         spawn,            {.v = lockscreen } },
 	{ ALTKEY|ShiftMask,             XK_h,         setmfact,         {.f = -0.05} },
 	{ ALTKEY|ShiftMask,             XK_l,         setmfact,         {.f = +0.05} },
+	{ ALTKEY|ShiftMask,             XK_0,         setmfact,         {.f = 1.0 + mfact} },
 	{ MODKEY|ShiftMask,             XK_f,         togglefullscreen, {0} },
 	{ MODKEY,                       XK_z,         raiseclient,      {0} },
 

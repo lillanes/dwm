@@ -548,7 +548,9 @@ clientmessage(XEvent *e)
 			setfullscreen(c, (cme->data.l[0] == 1 /* _NET_WM_STATE_ADD    */
 				|| (cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */ && !c->isfullscreen)));
 	} else if (cme->message_type == netatom[NetActiveWindow]) {
-		if (c != selmon->sel && !c->isurgent)
+		if (c && ISVISIBLE(c))
+			focus(c);
+		else if (c != selmon->sel && !c->isurgent)
 			seturgent(c, 1);
 	}
 }

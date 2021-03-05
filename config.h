@@ -80,10 +80,14 @@ static const char *infocmd[] = { "st", "-t", infoname, "-g", "120x34", "htop", N
 static char scrotfile[PATH_MAX + 1] = "${HOME}'/tmp/%Y-%m-%d-%H%M%S_$wx$h.png'"; /* to be expanded in setup() */
 static const char *scrotcmd[] = { "scrot", scrotfile, NULL };
 
-/* for special keyboard keys */
+/* for audio control */
 static const char *mute[] = { "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL };
+/* static const char *changeaudiosink[] = { "pactl", "set-default-sink", "$(pacmd list-sinks | awk '/1* index/ { print $3 }')", NULL }; */
+static const char *changeaudiosink[] = { "sh", "-c", "pactl set-default-sink $(pacmd list-sinks | awk -F ': *' '/index/ { if (!first) { first = $2 }; if (current) { target = $2; exit } } /* index/ { current = $2 } END { if (!target) { target = first }; print target }')", NULL };
 static const char *volumedown[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%", NULL };
 static const char *volumeup[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%", NULL };
+
+/* for screen brightness keyboard keys */
 static const char *brightnessdown[] = { "xbacklight", "-dec", "10", NULL };
 static const char *brightnessup[] = { "xbacklight", "-inc", "10", NULL };
 
@@ -164,6 +168,7 @@ static Button buttons[] = {
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
 	{ ClkStatusText,        0,              Button2,        spawn,          {.v = mute } },
+	{ ClkStatusText,        MODKEY,         Button2,        spawn,          {.v = changeaudiosink } },
 	{ ClkStatusText,        0,              Button4,        spawn,          {.v = volumeup } },
 	{ ClkStatusText,        0,              Button5,        spawn,          {.v = volumedown } },
 	{ ClkStatusText,        0,              Button3,        spawn,          {.v = infocmd } },

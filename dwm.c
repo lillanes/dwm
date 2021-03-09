@@ -216,6 +216,9 @@ static void showhide(Client *c);
 static void sigchld(int unused);
 static void sighup(int unused);
 static void sigterm(int unused);
+#ifdef XINERAMA
+static void sortmons(XineramaScreenInfo *screens, int n);
+#endif /* XINERAMA */
 static void spawn(const Arg *arg);
 static void focusprev();
 static void tag(const Arg *arg);
@@ -1863,6 +1866,24 @@ sigterm(int unused)
 	quit(&a);
 }
 
+#ifdef XINERAMA
+void
+sortmons(XineramaScreenInfo *screens, int n)
+{
+	int i, j;
+	XineramaScreenInfo *screen = ecalloc(1, sizeof(XineramaScreenInfo));
+
+	for (i = 0; i < n; ++i)
+		for (j = i + 1; j < n; ++j)
+			if (screens[i].x_org > screens[j].x_org) {
+				memcpy(&screen[0], &screens[i], sizeof(XineramaScreenInfo));
+				memcpy(&screens[i], &screens[j], sizeof(XineramaScreenInfo));
+				memcpy(&screens[j], &screen[0], sizeof(XineramaScreenInfo));
+			}
+	XFree(screen);
+}
+#endif /* XINERAMA */
+
 void
 spawn(const Arg *arg)
 {
@@ -2154,6 +2175,7 @@ updategeom(void)
 				memcpy(&unique[j++], &info[i], sizeof(XineramaScreenInfo));
 		XFree(info);
 		nn = j;
+		sortmons(unique, nn);
 		if (n <= nn) { /* new monitors available */
 			for (i = 0; i < (nn - n); i++) {
 				for (m = mons; m && m->next; m = m->next);

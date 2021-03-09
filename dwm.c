@@ -217,7 +217,7 @@ static void sigchld(int unused);
 static void sighup(int unused);
 static void sigterm(int unused);
 #ifdef XINERAMA
-static void sortmons(XineramaScreenInfo *screens, int n);
+static void sortscreens(XineramaScreenInfo *screens, int n);
 #endif /* XINERAMA */
 static void spawn(const Arg *arg);
 static void focusprev();
@@ -791,7 +791,7 @@ drawbar(Monitor *m)
 			if (m->sel->isfloating)
 				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
 		} else {
-			drw_setscheme(drw, scheme[SchemeNorm]);
+			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
 			drw_rect(drw, x, 0, w, bh, 1, 1);
 		}
 	}
@@ -1868,7 +1868,7 @@ sigterm(int unused)
 
 #ifdef XINERAMA
 void
-sortmons(XineramaScreenInfo *screens, int n)
+sortscreens(XineramaScreenInfo *screens, int n)
 {
 	int i, j;
 	XineramaScreenInfo *screen = ecalloc(1, sizeof(XineramaScreenInfo));
@@ -2175,7 +2175,7 @@ updategeom(void)
 				memcpy(&unique[j++], &info[i], sizeof(XineramaScreenInfo));
 		XFree(info);
 		nn = j;
-		sortmons(unique, nn);
+		sortscreens(unique, nn);
 		if (n <= nn) { /* new monitors available */
 			for (i = 0; i < (nn - n); i++) {
 				for (m = mons; m && m->next; m = m->next);

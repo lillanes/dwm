@@ -82,8 +82,7 @@ static const char *scrotcmd[] = { "scrot", scrotfile, NULL };
 
 /* for audio control */
 static const char *mute[] = { "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL };
-/* static const char *changeaudiosink[] = { "pactl", "set-default-sink", "$(pacmd list-sinks | awk '/1* index/ { print $3 }')", NULL }; */
-static const char *changeaudiosink[] = { "sh", "-c", "pactl set-default-sink $(pacmd list-sinks | awk -F ': *' '/index/ { if (!first) { first = $2 }; if (current) { target = $2; exit } } /* index/ { current = $2 } END { if (!target) { target = first }; print target }')", NULL };
+static const char *changeaudiosink[] = { "sh", "-c", "pactl set-default-sink $(pacmd list-sinks | awk -F ': *' '/index/ { if (first == \"\") { first = $2 }; if (current != \"\") { target = $2; exit } } /* index/ { current = $2 } END { if (target == \"\") { target = first } print target }')", NULL };
 static const char *volumedown[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%", NULL };
 static const char *volumeup[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%", NULL };
 

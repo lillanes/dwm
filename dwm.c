@@ -175,6 +175,7 @@ static void focusmon(const Arg *arg);
 static void focushorizontal(const Arg *arg);
 static void focusstack(const Arg *arg);
 static void focusvertical(const Arg *arg);
+static Atom getatomprop(Client *c, Atom prop);
 static int getrootptr(int *x, int *y);
 static int getstackends(const Monitor *m, const Client *fc, Client **mt, Client **mb, Client **st, Client **sb);
 static long getstate(Window w);
@@ -467,7 +468,7 @@ buttonpress(XEvent *e)
 			arg.ui = 1 << i;
 		} else if (ev->x < x + blw)
 			click = ClkLtSymbol;
-		else if (ev->x > selmon->ww - TEXTW(stext))
+		else if (ev->x > selmon->ww - (int)TEXTW(stext))
 			click = ClkStatusText;
 		else
 			click = ClkWinTitle;
@@ -735,6 +736,9 @@ drawbar(Monitor *m)
 	char ctmp;
 	Client *c;
 
+	if (!m->showbar)
+		return;
+
 	/* draw status first so it can be overdrawn by tags later */
 	if (m == selmon || 1) { /* status is only drawn on selected monitor */
 		tr = stext + strlen(stext);
@@ -956,7 +960,7 @@ focusstack(const Arg *arg)
 {
 	Client *c = NULL, *i;
 
-	if (!selmon->sel)
+	if (!selmon->sel || (selmon->sel->isfullscreen && lockfullscreen))
 		return;
 	if (arg->i > 0) {
 		for (c = selmon->sel->next; c && !ISVISIBLE(c); c = c->next);
@@ -1725,7 +1729,7 @@ setmfact(const Arg *arg)
 	if (!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
 	f = arg->f < 1.0 ? arg->f + selmon->mfact : arg->f - 1.0;
-	if (f < 0.1 || f > 0.9)
+	if (f < 0.05 || f > 0.95)
 		return;
 	selmon->mfact = f;
 	arrange(selmon);
@@ -1944,12 +1948,15 @@ tile(Monitor *m)
 			r = MIN(n, m->nmaster) - i;
 			h = (m->wh - my - gappx * (r - 1)) / r;
 			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-			my += HEIGHT(c) + gappx;
+			if (my + HEIGHT(c) + gappx < m->wh)
+				my += HEIGHT(c) + gappx;
 		} else {
 			r = n - i;
 			h = (m->wh - ty - gappx * (r - 1)) / r;
 			resize(c, m->wx + mw + g, m->wy + ty, m->ww - mw - g - (2*c->bw), h - (2*c->bw), 0);
-			ty += HEIGHT(c) + gappx;
+
+			if (ty + HEIGHT(c) + gappx < m->wh)
+				ty += HEIGHT(c) + gappx;
 		}
 }
 

@@ -79,7 +79,7 @@ static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34
 static const char infoname[] = "htop-float";
 static const char *infocmd[] = { "st", "-t", infoname, "-g", "120x34", "htop", NULL };
 static char scrotfile[PATH_MAX + 1] = "${HOME}'/tmp/%Y-%m-%d-%H%M%S_$wx$h.png'"; /* to be expanded in setup() */
-static const char *scrotcmd[] = { "scrot", scrotfile, NULL };
+static const char *scrotcmd[] = { "scrot", "-fs", scrotfile, "-e", "xclip -selection clipboard -t image/png -i $f", NULL };
 
 /* for audio control */
 static const char *mute[] = { "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL };
@@ -128,6 +128,7 @@ static Key keys[] = {
 	{ ALTKEY,                       XK_F3,        spawn,            {.v = termcmd } },
 	{ MODKEY,                       XK_grave,     togglescratch,    {.v = scratchpadcmd } },
 	{ 0,                            XK_Print,     spawn,            {.v = scrotcmd } },
+	{ MODKEY|ShiftMask,             XK_s,         spawn,            {.v = scrotcmd } },
 
 	{ ALTKEY,                       XK_F4,        killclient,       {0} },
 	{ ALTKEY,                       XK_Tab,       focusprev,        {0} },

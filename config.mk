@@ -2,7 +2,7 @@
 BRANCH = ${shell git rev-parse --abbrev-ref HEAD}
 
 # dwm version
-VERSION = 6.4.${BRANCH}
+VERSION = 6.5.${BRANCH}
 
 # Customize below to fit your system
 
